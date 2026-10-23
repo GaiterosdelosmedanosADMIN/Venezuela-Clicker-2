@@ -1,0 +1,594 @@
+<!<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VZLA Clicker 🇻🇪</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #12121c;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+
+        body.sin-luz {
+            background-color: #050508;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #f1c40f;
+        }
+
+        .flag-bar {
+            height: 6px;
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            margin: 10px auto;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-yellow { background: #f1c40f; flex: 1; }
+        .bar-blue { background: #2980b9; flex: 1; }
+        .bar-red { background: #c0392b; flex: 1; }
+
+        .blackout-banner {
+            display: none;
+            width: 100%;
+            max-width: 380px;
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .score-board {
+            background: #1e1e2d;
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid #33334d;
+            width: 100%;
+            max-width: 380px;
+            margin-bottom: 20px;
+        }
+
+        .score-board h2 {
+            font-size: 2.2rem;
+            color: #2ecc71;
+            margin-bottom: 5px;
+        }
+
+        .score-board p {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .click-area {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .arepa-btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #e67e22;
+            border: 6px solid #f1c40f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 75px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(241, 196, 15, 0.2);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .arepa-btn:active {
+            transform: scale(0.92);
+        }
+
+        .section-title {
+            width: 100%;
+            max-width: 420px;
+            font-size: 1.3rem;
+            color: #f1c40f;
+            margin: 15px 0 10px 0;
+            border-bottom: 2px solid #33334d;
+            padding-bottom: 5px;
+        }
+
+        .achievements-container, .upgrades-container {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .achievement-card {
+            background: #1e1e2d;
+            border: 1px solid #33334d;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.4;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card.unlocked {
+            opacity: 1;
+            filter: grayscale(0%);
+            border-color: #f1c40f;
+            background: #252538;
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+        }
+
+        .achievement-info h4 {
+            font-size: 0.95rem;
+            color: #ffffff;
+        }
+
+        .achievement-info p {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+
+        .upgrade-card {
+            background: #1e1e2d;
+            border: 1px solid #33334d;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .upgrade-info h4 {
+            font-size: 1rem;
+            color: #ffffff;
+        }
+
+        .upgrade-info p {
+            font-size: 0.85rem;
+            color: #f1c40f;
+            margin-top: 3px;
+        }
+
+        .upgrade-info span {
+            font-size: 0.75rem;
+            color: #95a5a6;
+        }
+
+        .buy-btn {
+            background: #27ae60;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            min-width: 90px;
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .buy-btn:disabled {
+            background: #555566;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>VZLA Clicker 🇻🇪</h1>
+        <div class="flag-bar">
+            <div class="bar-yellow"></div>
+            <div class="bar-blue"></div>
+            <div class="bar-red"></div>
+        </div>
+    </header>
+
+    <div class="blackout-banner" id="blackoutBanner">
+        ⚡ ¡CORTE DE LUZ! (-35% en Clics y Producción)<br>
+        Tiempo restante: <span id="blackoutTimer">02:00</span>
+    </div>
+
+    <div class="score-board">
+        <h2 id="bolivares">0 Bs.</h2>
+        <p>Generación: <span id="bps">0</span> Bs./seg</p>
+    </div>
+
+    <div class="click-area">
+        <button class="arepa-btn" id="clicker" onclick="clickArepa()">🫓</button>
+    </div>
+
+    <div class="section-title">🏆 Logros</div>
+    <div class="achievements-container">
+        <div class="achievement-card" id="ach1">
+            <div class="achievement-icon">🫓</div>
+            <div class="achievement-info">
+                <h4>Primer Apretón</h4>
+                <p>Consigue tu primer Bolívar.</p>
+            </div>
+        </div>
+        <div class="achievement-card" id="ach2">
+            <div class="achievement-icon">🥟</div>
+            <div class="achievement-info">
+                <h4>El Desayuno</h4>
+                <p>Acumula 1,000 Bs. en total.</p>
+            </div>
+        </div>
+        <div class="achievement-card" id="ach3">
+            <div class="achievement-icon">🚘</div>
+            <div class="achievement-info">
+                <h4>El Perro Caliente</h4>
+                <p>Acumula 100,000 Bs. en total.</p>
+            </div>
+        </div>
+        <div class="achievement-card" id="ach4">
+            <div class="achievement-icon">🥑</div>
+            <div class="achievement-info">
+                <h4>El Rey de la Arepa</h4>
+                <p>Acumula 10,000,000 Bs. en total.</p>
+            </div>
+        </div>
+        <div class="achievement-card" id="ach5">
+            <div class="achievement-icon">🛢️</div>
+            <div class="achievement-info">
+                <h4>Magnate Petrolero</h4>
+                <p>Acumula 1,000,000,000 Bs. en total.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">🏪 Tienda de Mejoras</div>
+    <div class="upgrades-container">
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🫓 Harina PAN</h4>
+                <p>Costo: <span id="cost1">15</span> Bs.</p>
+                <span>+1 Bs./seg (Tienes: <b id="count1">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy1" onclick="buyUpgrade(1)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>☕ Café Negrito</h4>
+                <p>Costo: <span id="cost2">100</span> Bs.</p>
+                <span>+5 Bs./seg (Tienes: <b id="count2">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy2" onclick="buyUpgrade(2)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🍋 Papelón con Limón</h4>
+                <p>Costo: <span id="cost3">200</span> Bs.</p>
+                <span>+10 Bs./seg (Tienes: <b id="count3">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy3" onclick="buyUpgrade(3)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🥤 Malta Fría</h4>
+                <p>Costo: <span id="cost4">500</span> Bs.</p>
+                <span>+25 Bs./seg (Tienes: <b id="count4">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy4" onclick="buyUpgrade(4)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🥟 Empanada de Cazón</h4>
+                <p>Costo: <span id="cost5">1,500</span> Bs.</p>
+                <span>+60 Bs./seg (Tienes: <b id="count5">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy5" onclick="buyUpgrade(5)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🧀 Queso Guayanés</h4>
+                <p>Costo: <span id="cost6">4,500</span> Bs.</p>
+                <span>+180 Bs./seg (Tienes: <b id="count6">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy6" onclick="buyUpgrade(6)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🥖 Pan de Jamón</h4>
+                <p>Costo: <span id="cost7">8,000</span> Bs.</p>
+                <span>+300 Bs./seg (Tienes: <b id="count7">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy7" onclick="buyUpgrade(7)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🫔 Hallaca Navideña</h4>
+                <p>Costo: <span id="cost8">15,000</span> Bs.</p>
+                <span>+600 Bs./seg (Tienes: <b id="count8">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy8" onclick="buyUpgrade(8)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🎸 Cuatro Venezolano</h4>
+                <p>Costo: <span id="cost9">25,000</span> Bs.</p>
+                <span>+1,000 Bs./seg (Tienes: <b id="count9">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy9" onclick="buyUpgrade(9)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🚘 Carrito de Perros</h4>
+                <p>Costo: <span id="cost10">50,000</span> Bs.</p>
+                <span>+2,000 Bs./seg (Tienes: <b id="count10">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy10" onclick="buyUpgrade(10)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🏪 Bodega del Barrio</h4>
+                <p>Costo: <span id="cost11">120,000</span> Bs.</p>
+                <span>+4,500 Bs./seg (Tienes: <b id="count11">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy11" onclick="buyUpgrade(11)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>⚡ Planta Eléctrica</h4>
+                <p>Costo: <span id="cost12">350,000</span> Bs.</p>
+                <span>+12,000 Bs./seg (Tienes: <b id="count12">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy12" onclick="buyUpgrade(12)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🚌 Camioneta por Puesto</h4>
+                <p>Costo: <span id="cost13">1,000,000</span> Bs.</p>
+                <span>+35,000 Bs./seg (Tienes: <b id="count13">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy13" onclick="buyUpgrade(13)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🛢️ Pozos Petroleros</h4>
+                <p>Costo: <span id="cost14">4,000,000</span> Bs.</p>
+                <span>+130,000 Bs./seg (Tienes: <b id="count14">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy14" onclick="buyUpgrade(14)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🥑 Reina Pepiada</h4>
+                <p>Costo: <span id="cost15">10,000,000</span> Bs.</p>
+                <span>+5,000,000 Bs./seg (Tienes: <b id="count15">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy15" onclick="buyUpgrade(15)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🏔️ Pico Espejo</h4>
+                <p>Costo: <span id="cost16">15,000,000</span> Bs.</p>
+                <span>+500,000 Bs./seg (Tienes: <b id="count16">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy16" onclick="buyUpgrade(16)" disabled>Comprar</button>
+        </div>
+
+        <div class="upgrade-card">
+            <div class="upgrade-info">
+                <h4>🌊 El Salto Ángel</h4>
+                <p>Costo: <span id="cost17">60,000,000</span> Bs.</p>
+                <span>+2,000,000 Bs./seg (Tienes: <b id="count17">0</b>)</span>
+            </div>
+            <button class="buy-btn" id="buy17" onclick="buyUpgrade(17)" disabled>Comprar</button>
+        </div>
+    </div>
+
+    <script>
+        var bolivares = 0;
+        var totalBolivares = 0;
+        var baseClickValue = 1;
+
+        // Variables del Evento de Apagón Nerfeado
+        var isBlackout = false;
+        var blackoutTimeLeft = 120; // 2 minutos = 120 segundos
+        var blackoutCooldown = 600;  // Aparece cada 10 minutos (600 segundos)
+
+        var upgrades = {
+            1: { count: 0, cost: 15, bps: 1 },
+            2: { count: 0, cost: 100, bps: 5 },
+            3: { count: 0, cost: 200, bps: 10 },
+            4: { count: 0, cost: 500, bps: 25 },
+            5: { count: 0, cost: 1500, bps: 60 },
+            6: { count: 0, cost: 4500, bps: 180 },
+            7: { count: 0, cost: 8000, bps: 300 },
+            8: { count: 0, cost: 15000, bps: 600 },
+            9: { count: 0, cost: 25000, bps: 1000 },
+            10: { count: 0, cost: 50000, bps: 2000 },
+            11: { count: 0, cost: 120000, bps: 4500 },
+            12: { count: 0, cost: 350000, bps: 12000 },
+            13: { count: 0, cost: 1000000, bps: 35000 },
+            14: { count: 0, cost: 4000000, bps: 130000 },
+            15: { count: 0, cost: 10000000, bps: 5000000 },
+            16: { count: 0, cost: 15000000, bps: 500000 },
+            17: { count: 0, cost: 60000000, bps: 2000000 }
+        };
+
+        var achievements = {
+            1: { req: 1, unlocked: false },
+            2: { req: 1000, unlocked: false },
+            3: { req: 100000, unlocked: false },
+            4: { req: 10000000, unlocked: false },
+            5: { req: 1000000000, unlocked: false }
+        };
+
+        function getBps() {
+            var total = 0;
+            for (var id in upgrades) {
+                total += upgrades[id].count * upgrades[id].bps;
+            }
+            // Si hay apagón, te resta 35% (mantienes el 65% de ganancias)
+            if (isBlackout) {
+                total = Math.floor(total * 0.65);
+            }
+            return total;
+        }
+
+        function getClickValue() {
+            var val = baseClickValue;
+            if (isBlackout) {
+                val = Math.max(1, Math.floor(val * 0.65));
+            }
+            return val;
+        }
+
+        function triggerBlackout() {
+            isBlackout = true;
+            blackoutTimeLeft = 120; // 2 minutos
+            document.body.classList.add('sin-luz');
+            document.getElementById('blackoutBanner').style.display = 'block';
+        }
+
+        function endBlackout() {
+            isBlackout = false;
+            blackoutCooldown = 600; // Resetea la cuenta regresiva para 10 minutos
+            document.body.classList.remove('sin-luz');
+            document.getElementById('blackoutBanner').style.display = 'none';
+        }
+
+        function checkAchievements() {
+            for (var id in achievements) {
+                var ach = achievements[id];
+                if (!ach.unlocked && totalBolivares >= ach.req) {
+                    ach.unlocked = true;
+                    document.getElementById('ach' + id).classList.add('unlocked');
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('bolivares').textContent = Math.floor(bolivares).toLocaleString('es-VE') + ' Bs.';
+            document.getElementById('bps').textContent = getBps().toLocaleString('es-VE');
+
+            for (var id in upgrades) {
+                var up = upgrades[id];
+                document.getElementById('cost' + id).textContent = Math.floor(up.cost).toLocaleString('es-VE');
+                document.getElementById('count' + id).textContent = up.count;
+
+                var btn = document.getElementById('buy' + id);
+                if (btn) {
+                    btn.disabled = (bolivares < up.cost);
+                }
+            }
+
+            checkAchievements();
+        }
+
+        function clickArepa() {
+            var currentClick = getClickValue();
+            bolivares += currentClick;
+            totalBolivares += currentClick;
+            updateUI();
+        }
+
+        function buyUpgrade(id) {
+            var up = upgrades[id];
+            if (bolivares >= up.cost) {
+                bolivares -= up.cost;
+                up.count += 1;
+                up.cost = Math.floor(up.cost * 1.15);
+                updateUI();
+            }
+        }
+
+        // Bucle principal de reloj
+        setInterval(function() {
+            var bps = getBps();
+            if (bps > 0) {
+                bolivares += bps;
+                totalBolivares += bps;
+            }
+
+            // Manejo de tiempos de apagón
+            if (isBlackout) {
+                blackoutTimeLeft--;
+                var mins = Math.floor(blackoutTimeLeft / 60);
+                var secs = blackoutTimeLeft % 60;
+                document.getElementById('blackoutTimer').textContent = 
+                    (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
+
+                if (blackoutTimeLeft <= 0) {
+                    endBlackout();
+                }
+            } else {
+                // Cuenta regresiva de 10 minutos para el próximo corte
+                blackoutCooldown--;
+                if (blackoutCooldown <= 0) {
+                    triggerBlackout();
+                }
+            }
+
+            updateUI();
+        }, 1000);
+
+        updateUI();
+    </script>
+</body>
+</html>
